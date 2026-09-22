@@ -75,6 +75,7 @@
             justify-content: center;
             padding: 1.5mm;
             box-sizing: border-box;
+            z-index: 2;
         }
 
         /* Second QR Code Container: 25x25 mm (2.5x2.5 cm) with 15 mm gap */
@@ -89,6 +90,21 @@
             padding: 1mm;
             box-sizing: border-box;
             margin-left: 15mm; /* Required 1.5 cm gap between codes */
+            z-index: 2;
+        }
+
+        /* Watermark element in bottom-right corner: Powiększony o 50% (21 x 10.5 mm) */
+        .watermark-box {
+            position: absolute;
+            bottom: 3mm;
+            right: 3mm;
+            width: 21mm;      /* Zwiększone o 50% z 14mm */
+            height: 10.5mm;   /* Zwiększone o 50% z 7mm */
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+            pointer-events: none;
+            z-index: 5;
         }
 
         .qr-box-main img, .qr-box-main canvas,
@@ -109,6 +125,11 @@
             @page {
                 size: A4 portrait;
                 margin: 0;
+            }
+
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
             }
 
             body {
@@ -162,23 +183,39 @@
         <!-- Form section with internal scrollbar -->
         <div class="flex-1 overflow-y-auto p-5 space-y-6">
 
-            <!-- Wgrywanie Tła -->
+            <!-- Wgrywanie Tła Identyfikatora -->
             <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
                 <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2">
-                    <i class="fa-solid fa-image text-indigo-600"></i> Tło Identyfikatora
+                    <i class="fa-solid fa-image text-indigo-600"></i> Główna Grafika Tła
                 </label>
-                <div class="text-xs text-slate-600 bg-indigo-50/70 p-3 rounded-lg border border-indigo-100 leading-relaxed">
-                    <span class="font-semibold text-indigo-900 block mb-0.5">Zalecana rozdzielczość tła:</span>
+                <div class="text-xs text-slate-600 bg-indigo-50/70 p-2.5 rounded-lg border border-indigo-100 leading-relaxed">
                     Dla wymiaru 90x55 mm w 300 DPI: <strong>1063 x 650 px</strong>.
-                    <span class="font-semibold text-indigo-900 block mb-0.5">By wydrukować badge z tłem:</span>
-                    W opcjach druku zaznacz opcję <strong>"Drukuj tła"</strong>.
                 </div>
                 <div class="flex items-center gap-2">
                     <input type="file" id="bg-upload" accept="image/*" class="hidden" onchange="handleBgUpload(event)">
                     <button onclick="document.getElementById('bg-upload').click()" class="w-full py-2 px-3 bg-white border border-slate-300 rounded-lg text-xs font-medium text-slate-700 hover:bg-slate-50 flex items-center justify-center gap-2 shadow-sm transition">
-                        <i class="fa-solid fa-upload"></i> Wybierz plik z tłem
+                        <i class="fa-solid fa-upload"></i> Wybierz tło identyfikatora
                     </button>
                     <button id="remove-bg-btn" onclick="removeBg()" class="hidden px-3 py-2 bg-red-50 text-red-600 border border-red-200 rounded-lg text-xs hover:bg-red-100 transition" title="Usuń tło">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Wgrywanie Znaku Wodnego (Grafiki) -->
+            <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+                <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2">
+                    <i class="fa-solid fa-stamp text-indigo-600"></i> Znak Wodny (Plik)
+                </label>
+                <div class="text-xs text-slate-600 bg-indigo-50/70 p-2.5 rounded-lg border border-indigo-100 leading-relaxed">
+                    Wymiar obszaru: <strong>21 x 10.5 mm</strong> (prawy dolny róg).
+                </div>
+                <div class="flex items-center gap-2">
+                    <input type="file" id="watermark-upload" accept="image/*" class="hidden" onchange="handleWatermarkUpload(event)">
+                    <button onclick="document.getElementById('watermark-upload').click()" class="w-full py-2 px-3 bg-white border border-slate-300 rounded-lg text-xs font-medium text-slate-700 hover:bg-slate-50 flex items-center justify-center gap-2 shadow-sm transition">
+                        <i class="fa-solid fa-file-image"></i> Wybierz plik znaku wodnego
+                    </button>
+                    <button id="remove-watermark-btn" onclick="removeWatermark()" class="hidden px-3 py-2 bg-red-50 text-red-600 border border-red-200 rounded-lg text-xs hover:bg-red-100 transition" title="Usuń znak wodny">
                         <i class="fa-solid fa-trash"></i>
                     </button>
                 </div>
@@ -220,7 +257,7 @@
         <div class="p-4 border-t border-slate-200 bg-slate-50 text-[11px] text-slate-500 space-y-1">
             <p>• <strong>Wymiar Badge:</strong> 90 mm x 55 mm | Ramka 3px solid</p>
             <p>• <strong>QR Login:</strong> 30x30 mm | <strong>QR Hasło:</strong> 25x25 mm (odstęp 15 mm)</p>
-            <p>• <strong>Marginesy A4:</strong> 25.4 mm (MS Word) | Mieści do 8 szt. na stronę</p>
+            <p>• <strong>Znak wodny:</strong> 21 x 10.5 mm w prawym dolnym rogu</p>
         </div>
     </aside>
 
@@ -245,6 +282,7 @@
         ];
 
         let bgImageData = null;
+        let watermarkImageData = null;
 
         // Initialize App
         window.onload = function() {
@@ -271,6 +309,28 @@
             bgImageData = null;
             document.getElementById('bg-upload').value = '';
             document.getElementById('remove-bg-btn').classList.add('hidden');
+            renderBadgesPages();
+        }
+
+        // Handle File Watermark Upload
+        function handleWatermarkUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    watermarkImageData = e.target.result;
+                    document.getElementById('remove-watermark-btn').classList.remove('hidden');
+                    renderBadgesPages();
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Remove Watermark Image
+        function removeWatermark() {
+            watermarkImageData = null;
+            document.getElementById('watermark-upload').value = '';
+            document.getElementById('remove-watermark-btn').classList.add('hidden');
             renderBadgesPages();
         }
 
@@ -344,10 +404,6 @@
             const container = document.getElementById('a4-pages-container');
             container.innerHTML = '';
 
-            // Grid fit calculation: 210x297mm page minus 25.4mm margins on each side
-            // Printable area: 159.2 mm width x 246.2 mm height
-            // 2 columns of 90mm = 180mm (fits horizontally with gap)
-            // 4 rows of 55mm = 220mm (fits vertically within available 246.2mm height)
             const BADGES_PER_PAGE = 8;
             const totalPages = Math.ceil(badgesData.length / BADGES_PER_PAGE) || 1;
 
@@ -389,6 +445,9 @@
                 card.style.backgroundImage = 'none';
             }
 
+            // Konstruowanie kontenera na znak wodny (tylko tło graficzne)
+            const watermarkStyle = watermarkImageData ? `style="background-image: url('${watermarkImageData}');"` : '';
+
             card.innerHTML = `
                 <div class="qr-box-main" title="QR Login (3x3 cm)">
                     <div id="qr-login-${badge.id}"></div>
@@ -396,6 +455,7 @@
                 <div class="qr-box-sub" title="QR Hasło (2.5x2.5 cm)">
                     <div id="qr-password-${badge.id}"></div>
                 </div>
+                <div class="watermark-box" ${watermarkStyle}></div>
             `;
 
             return card;
