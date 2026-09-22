@@ -1,3 +1,3 @@
 # Generator BadgeQR
-  [Otwórz stronę]([https://koutasora.github.io/QRBadgeGenerator/])
+  [Otwórz stronę](https://koutasora.github.io/QRBadgeGenerator/)
   
