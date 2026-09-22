@@ -4,11 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Generator Identyfikatorów 55x90 mm</title>
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- QRCode.js Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
     <style>
@@ -18,12 +15,11 @@
             font-family: 'Inter', sans-serif;
         }
 
-        /* Printable A4 Page styling according to MS Word 25.4mm margin standards */
         .a4-page {
             width: 210mm;
             height: 297mm;
             padding: 25.4mm;
-            background: white;
+            background: #ffffff;
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
             margin-bottom: 2rem;
             box-sizing: border-box;
@@ -35,7 +31,6 @@
             align-content: start;
         }
 
-        /* Grid layout for Badges on A4: 2 columns, fits up to 4 rows (8 badges per page) */
         .badges-grid {
             display: grid;
             grid-template-columns: repeat(2, 90mm);
@@ -47,7 +42,6 @@
             justify-content: center;
         }
 
-        /* Badge item structure (Horizontal [__] 90x55 mm) */
         .badge-card {
             width: 90mm;
             height: 55mm;
@@ -64,7 +58,6 @@
             background-color: #ffffff;
         }
 
-        /* First QR Code Container: 30x30 mm (3x3 cm) */
         .qr-box-main {
             width: 30mm;
             height: 30mm;
@@ -78,7 +71,6 @@
             z-index: 2;
         }
 
-        /* Second QR Code Container: 25x25 mm (2.5x2.5 cm) with 15 mm gap */
         .qr-box-sub {
             width: 25mm;
             height: 25mm;
@@ -89,17 +81,16 @@
             justify-content: center;
             padding: 1mm;
             box-sizing: border-box;
-            margin-left: 15mm; /* Required 1.5 cm gap between codes */
+            margin-left: 15mm;
             z-index: 2;
         }
 
-        /* Watermark element in bottom-right corner: Powiększony o 50% (21 x 10.5 mm) */
         .watermark-box {
             position: absolute;
             bottom: 3mm;
             right: 3mm;
-            width: 21mm;      /* Zwiększone o 50% z 14mm */
-            height: 10.5mm;   /* Zwiększone o 50% z 7mm */
+            width: 21mm;
+            height: 10.5mm;
             background-size: contain;
             background-position: center;
             background-repeat: no-repeat;
@@ -114,13 +105,11 @@
             object-fit: contain;
         }
 
-        /* Placeholder 50% opacity style */
         input::placeholder {
             opacity: 0.5;
             color: #6b7280;
         }
 
-        /* Media Print Styling for exact A4 paper rendering */
         @media print {
             @page {
                 size: A4 portrait;
@@ -164,9 +153,7 @@
 </head>
 <body class="bg-slate-100 min-h-screen flex flex-col md:flex-row overflow-hidden text-slate-800">
 
-    <!-- PANEL STERUJĄCY / GENERATOR (NIERUCHOMY) -->
     <aside class="no-print w-full md:w-[440px] bg-white border-r border-slate-200 flex flex-col h-screen shrink-0 z-10 shadow-lg">
-        <!-- Header -->
         <div class="p-5 border-b border-slate-200 bg-slate-900 text-white flex items-center justify-between">
             <div>
                 <h1 class="text-lg font-bold flex items-center gap-2">
@@ -180,10 +167,7 @@
             </button>
         </div>
 
-        <!-- Form section with internal scrollbar -->
         <div class="flex-1 overflow-y-auto p-5 space-y-6">
-
-            <!-- Wgrywanie Tła Identyfikatora -->
             <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
                 <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2">
                     <i class="fa-solid fa-image text-indigo-600"></i> Główna Grafika Tła
@@ -202,7 +186,6 @@
                 </div>
             </div>
 
-            <!-- Wgrywanie Znaku Wodnego (Grafiki) -->
             <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
                 <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2">
                     <i class="fa-solid fa-stamp text-indigo-600"></i> Znak Wodny (Plik)
@@ -221,7 +204,6 @@
                 </div>
             </div>
 
-            <!-- Tabela Wprowadzania Danych -->
             <div>
                 <div class="flex justify-between items-center mb-3">
                     <h2 class="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2">
@@ -241,19 +223,16 @@
                             </tr>
                         </thead>
                         <tbody id="rows-container" class="divide-y divide-slate-100">
-                            <!-- Dynamic rows appended here -->
                         </tbody>
                     </table>
                 </div>
 
-                <!-- Przycisk dodawania wiersza (+) -->
                 <button onclick="addNewRow()" class="mt-3 w-full py-2.5 bg-indigo-50 border border-dashed border-indigo-300 rounded-xl text-indigo-600 font-semibold text-xs hover:bg-indigo-100 transition flex items-center justify-center gap-2">
                     <i class="fa-solid fa-plus text-sm"></i> Dodaj kolejny wiersz (+)
                 </button>
             </div>
         </div>
 
-        <!-- Stopka informacyjna -->
         <div class="p-4 border-t border-slate-200 bg-slate-50 text-[11px] text-slate-500 space-y-1">
             <p>• <strong>Wymiar Badge:</strong> 90 mm x 55 mm | Ramka 3px solid</p>
             <p>• <strong>QR Login:</strong> 30x30 mm | <strong>QR Hasło:</strong> 25x25 mm (odstęp 15 mm)</p>
@@ -261,22 +240,17 @@
         </div>
     </aside>
 
-    <!-- OBSZAR PODGLĄDU DRUKU A4 (PRZEWIJALNY W PIONIE) -->
     <main class="print-container flex-1 bg-slate-200 overflow-y-auto h-screen p-6 md:p-10 flex flex-col items-center">
-        <!-- Live status bar -->
         <div class="no-print w-full max-w-[210mm] mb-4 flex justify-between items-center text-xs text-slate-600">
             <span class="font-medium"><i class="fa-regular fa-eye mr-1"></i> Podgląd wydruku A4</span>
             <span id="pages-count-info" class="bg-white px-3 py-1 rounded-full shadow-sm font-semibold text-slate-700">Liczba stron: 1</span>
         </div>
 
-        <!-- Kontener na strony A4 -->
         <div id="a4-pages-container" class="flex flex-col items-center">
-            <!-- Dynamic A4 Pages rendered here -->
         </div>
     </main>
 
     <script>
-        // Array holding the state of entries. Initial state: empty fields with placeholders
         let badgesData = [
             { id: 1, login: '', password: '' }
         ];
@@ -284,13 +258,11 @@
         let bgImageData = null;
         let watermarkImageData = null;
 
-        // Initialize App
         window.onload = function() {
             renderTableRows();
             renderBadgesPages();
         };
 
-        // Handle File Background Upload
         function handleBgUpload(event) {
             const file = event.target.files[0];
             if (file) {
@@ -304,7 +276,6 @@
             }
         }
 
-        // Remove Background Image
         function removeBg() {
             bgImageData = null;
             document.getElementById('bg-upload').value = '';
@@ -312,7 +283,6 @@
             renderBadgesPages();
         }
 
-        // Handle File Watermark Upload
         function handleWatermarkUpload(event) {
             const file = event.target.files[0];
             if (file) {
@@ -326,7 +296,6 @@
             }
         }
 
-        // Remove Watermark Image
         function removeWatermark() {
             watermarkImageData = null;
             document.getElementById('watermark-upload').value = '';
@@ -334,7 +303,6 @@
             renderBadgesPages();
         }
 
-        // Add New Empty Row (+)
         function addNewRow() {
             const newId = Date.now();
             badgesData.push({ id: newId, login: '', password: '' });
@@ -342,10 +310,8 @@
             renderBadgesPages();
         }
 
-        // Delete Row
         function deleteRow(id) {
             if (badgesData.length <= 1) {
-                // Clear row if it's the last remaining item
                 badgesData = [{ id: Date.now(), login: '', password: '' }];
             } else {
                 badgesData = badgesData.filter(item => item.id !== id);
@@ -354,7 +320,6 @@
             renderBadgesPages();
         }
 
-        // Update Input Field Data
         function updateData(id, field, value) {
             const item = badgesData.find(row => row.id === id);
             if (item) {
@@ -363,7 +328,6 @@
             }
         }
 
-        // Render Sidebar Input Form Table
         function renderTableRows() {
             const container = document.getElementById('rows-container');
             container.innerHTML = '';
@@ -399,7 +363,6 @@
             });
         }
 
-        // Render A4 Pages Grid & Calculate Pagination
         function renderBadgesPages() {
             const container = document.getElementById('a4-pages-container');
             container.innerHTML = '';
@@ -427,14 +390,12 @@
                 container.appendChild(pageElement);
             }
 
-            // Generate QR codes using QRCode.js after DOM elements are added
             badgesData.forEach((badge) => {
                 generateQrCodeForBadge(`qr-login-${badge.id}`, badge.login || ' ', 30);
                 generateQrCodeForBadge(`qr-password-${badge.id}`, badge.password || ' ', 25);
             });
         }
 
-        // Build individual Badge Card Element
         function createBadgeElement(badge) {
             const card = document.createElement('div');
             card.className = 'badge-card';
@@ -445,7 +406,6 @@
                 card.style.backgroundImage = 'none';
             }
 
-            // Konstruowanie kontenera na znak wodny (tylko tło graficzne)
             const watermarkStyle = watermarkImageData ? `style="background-image: url('${watermarkImageData}');"` : '';
 
             card.innerHTML = `
@@ -461,14 +421,12 @@
             return card;
         }
 
-        // Generate QR code inside given DOM container ID
         function generateQrCodeForBadge(containerId, text, sizeInMm) {
             const element = document.getElementById(containerId);
             if (!element) return;
             
             element.innerHTML = '';
 
-            // Convert mm dimension to pixel rendering ratio (~3.78 px/mm)
             const pxSize = Math.round(sizeInMm * 3.78);
 
             new QRCode(element, {
@@ -481,7 +439,6 @@
             });
         }
 
-        // Helper function to escape HTML special characters
         function escapeHtml(str) {
             if (!str) return '';
             return str
